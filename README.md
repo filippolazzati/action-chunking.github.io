@@ -1,6 +1,6 @@
-# Flow Reversal Steering
+# Action Chunking
 
-Source code for the [Action chunking project page](https://action-chunking.github.io).
+Source code for the [Action chunking project page](https://filippolazzati.github.io/action-chunking.github.io/).
 
 If you find this work useful, please cite:
 
