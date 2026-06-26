@@ -177,18 +177,18 @@
       <h2 class="title is-3">Setting</h2>
     </div>
     <div class="content paper-section-text math-content">
-      Our focus is on the Robomimic and Libero simulation benchmarks, and on the
-      Droid setup on the Franka real robot. These problems share the following
+      Our focus is on the Robomimic and LIBERO simulation benchmarks, and on the
+      DROID setup on the Franka real robot. These problems share the following
       structure:
 
       <ul>
   <li>Low control frequencies (15-20Hz)</li>
-  <li>Few demonstrations datasets (50-300 demos per task)</li>
+  <li>Small demonstration datasets (50-300 demos per task)</li>
   <li>Delta position control (either EE or joint)</li>
   <li>Overparameterized diffusion policies</li>
 </ul>
-We leave to future works the task of assessing whether our insights generalize
-also to other settings (eg, high control frequencies, large demonstration datasets).
+We leave to future work the task of assessing whether our insights also generalize
+to other settings (e.g., high control frequencies, large demonstration datasets).
     </div>
 
     
@@ -205,12 +205,12 @@ also to other settings (eg, high control frequencies, large demonstration datase
       (non-Markovian) than common Markovian policies learned with Behavioral
       Cloning, and so better capture non-Markov human behaviors.
       <br><br>
-      Of course, a pre-condition for this hypothesis is that humans exhibit some
-      sort of non-Markov behavior. We noted that the human demonstrations provided in the Libero
+      Of course, a precondition for this hypothesis is that humans exhibit some
+      sort of non-Markov behavior. We noted that the human demonstrations provided in the LIBERO
       benchmark contain some non-Markovian behavior: pauses when the arm
       interacts with objects. To see this, consider the three
       images below, which are taken from an expert demonstration for the task of
-      opening the bottom drawer. Intuitively, at t=80, due to the high control
+      opening the bottom drawer. Intuitively, at \(t=80\), due to the high control
       frequency (20Hz), the arm gets stuck for a few frames (~5) before actually
       moving to the right.
     </div>
@@ -233,20 +233,20 @@ also to other settings (eg, high control frequencies, large demonstration datase
         <div class="content paper-section-text math-content">
       <br><br>
       To test this hypothesis, we compared the validation loss of a Markovian
-      learner $a_t|s_t$ with that of a delayed policy $a_t| s_{t-n}$, where both
-      of them are obtained from the same action chunking trained policy
-      $a_{t:t+20}|s_t$.
+      learner $a_t \mid s_t$ with that of a delayed policy $a_t \mid s_{t-n}$, where both
+      of them are obtained from the same action-chunking-trained policy
+      $a_{t:t+20} \mid s_t$.
       <br><br>
-      As you can see from the figure on the left below, the validation loss does
-      <i>not</i> increase (on average over all Libero 90 tasks) as we increase the
-      delay $n$, but it even reduces a bit! While there might be
-      various explanations for this phenomenon, we found that, for some specific tasks and specific
+      As shown in the figure on the left below, the validation loss does
+      <i>not</i> increase (on average over all LIBERO-90 tasks) as we increase the
+      delay $n$, and even decreases slightly! While there might be
+      various explanations for this phenomenon, we found that, for some tasks and
       expert demonstrations (especially when the validation trajectory is
       close to some trajectory observed during training), the difference is much
-      more evident when the demonstrator pauses, ie, it exhibits some
-      non-Markovian behavior. For instance, as you can see from the figure on
+      more evident when the demonstrator pauses, i.e., it exhibits some
+      non-Markovian behavior. For instance, the figure on
       the right below, which corresponds to the "open the bottom drawer" task
-      mentioned earlier, we see that the delayed policy has lower loss aroung
+      mentioned earlier, we see that the delayed policy has lower loss around
       timestep 80, which corresponds to the pause.
     </div>
 
@@ -265,19 +265,18 @@ also to other settings (eg, high control frequencies, large demonstration datase
             <div class="content paper-section-text math-content">
       But how do delayed policies perform in terms of success rate? As you can
       see from the figure below on the left, they perform much better than the
-      Markovian learner, matching (or even exceeding) action chunking in Libero
-      90.
+      Markovian learner, matching (or even exceeding) action chunking in LIBERO-90.
       <br><br>
       One question that arises is then: "Is the improvement in success rate due
       to the (slight) improvement in validation loss?" To test this, we plotted
-      on the figure on the right below, for each of the libero 90 tasks, its
+      on the figure on the right below, for each LIBERO-90 task, its
       difference in success rate between action chunking and Markovian policies,
       versus the difference in validation loss between the Markovian policy and
       the best (non-Markovian)
       delayed policy. Intuitively, if
       Hypothesis 1 was the most relevant, then we would expect to see a
       positive correlation, because that would mean that in tasks where delayed
-      policies exhibit lower validation loss (ie, the expert is more
+      policies exhibit lower validation loss (i.e., the expert is more
       non-Markovian), then action chunking performs better. However, as you can
       see from this figure, this is not the case (there are even points with
       negative difference in validation loss for which action chunking performs better).      
@@ -313,9 +312,9 @@ also to other settings (eg, high control frequencies, large demonstration datase
     <div class="content paper-section-text math-content">
       One of the core and well-known issues of Behavioral Cloning (and imitation
       learning in general) is that it suffers from error compounding, that is,
-      making mistakes increases our odds of making additional mistakes as mistakes
-      tend to bring us in unseen states. As a consequence, Markovian
-      learners suffer from exponentially worse performance in the worst case, as
+      mistakes increase the odds of making additional mistakes because they
+      tend to bring the policy into unseen states. As a consequence, Markovian
+      learners can suffer from exponentially worse performance in the worst case, as
       shown by the following theorem.      
     </div>
 
@@ -349,39 +348,39 @@ also to other settings (eg, high control frequencies, large demonstration datase
 
         <div class="content paper-section-text math-content">
       Hypothesis 2 posits that action chunks mitigate compounding
-      error by reducing the effective horizon: informally, the intuition is
+      errors by reducing the effective horizon: informally, the intuition is
       that, by taking $H/k$ actions instead of $H$ actions (where $H$ is the
       horizon and $k$ the chunk size), the exponent in the result above should
       be divided by $k$.
       
-      As a premise to this hypothesis, is that action chunking is more sample
+      A premise of this hypothesis is that action chunking is more sample
       efficient than Markovian behavioral cloning. To test this, we trained diffusion policies for increasing
-      amounts of demonstrations in Libero 90. As you can see in the figure
+      numbers of demonstrations in LIBERO-90. As shown in the figure
       below, the gap between action chunking and the Markovian learner is much
       larger with 10 demonstrations than with 50, supporting the claim that
       action chunking is more sample efficient.
     </div>
 
-        <div class="media-row media-row-2 compact-media-row prelim-stills-row">
+        <div class="media-row media-row-1 compact-media-row prelim-stills-row">
       <figure class="paper-figure">
         <img src="./static/2_section_comp_errors/sample_eff.png" >
-        <figcaption>Comparison of methods for increasing amount of expert demonstrations.</figcaption>
+        <figcaption>Comparison of methods as the number of expert demonstrations increases.</figcaption>
       </figure>
     </div>
 
             <div class="content paper-section-text math-content">
-              However, the simulation above shows also that delayed policies are
+              However, the simulation above also shows that delayed policies are
               more sample efficient than Markov policies, and with similar
               success rates to action chunking policies. Since delayed policies
-              take actions at every step (ie, they do not reduce the horizon of
-              the problem), then there should be another reason accumunating
-              both action chunking and delayed policies, that justifies their
+              take actions at every step (i.e., they do not reduce the horizon of
+              the problem), then there should be another mechanism shared by
+              both action chunking and delayed policies that explain their
               improved sample efficiency.
 
               Interestingly, we found that, \emph{if we make predictions based
               on past states, then we reduce compounding errors when the
-              dynamics is smooth, because past states should be closer to
-              distribution than the current states (in the worst case)}. This
+              dynamics are smooth, because past states should be closer to
+              distribution than the current state (in the worst case)}. This
               intuition is formalized in the following theoretical result.
     </div>
 
@@ -413,22 +412,22 @@ also to other settings (eg, high control frequencies, large demonstration datase
       <h2 class="title is-3">Hypothesis 3: Representation Learning</h2>
     </div>
     <div class="content paper-section-text math-content">
-      A commonly observed phenomenon is that computing a Markovian learner by first training an action chunking policy with chunk
+      A commonly observed phenomenon is that computing a Markovian learner by first training an action-chunking policy with chunk
       size $>1$, and then playing only the first action, improves and sometimes
       matches the performance of action chunking.
 
-      To test if just using action chunking in this way during training is the
-      key, we compared the following four methods in Libero 90:
+      To test whether using action chunking in this way during training is the
+      key, we compared the following four methods in LIBERO-90:
       <ul>
   <li>Markovian learner</li>
   <li>Markovian induced by a chunked-trained policy</li>
   <li>Delayed policy</li>
   <li>Delayed policy induced by a chunked-trained policy</li>
 </ul>
-As you can see from the figure below, the increased benefit of using action
-chunking for training is almost neglectable for the delayed policy.
+As shown in the figure below, the increased benefit of using action
+chunking for training is almost negligible for the delayed policy.
     </div>
-    <figure class="paper-figure paper-figure-wide">
+    <figure class="media-row media-row-1 compact-media-row prelim-stills-row">
       <img src="./static/3_section_repr/libero_repr_learn.png" alt="Representation learning result plot">
       <figcaption>Representation learning results.</figcaption>
     </figure>
@@ -449,16 +448,16 @@ chunking for training is almost neglectable for the delayed policy.
     </div>
     <div class="content paper-section-text math-content">
       The preceding results suggest that non-Markovian expressivity and
-      reduction in compounding error not only
-contribute to the success of action chunking, but also that, on Libero, we can match the performance
-of action chunking with only a delayed policy.
+      reductions in compounding errors contribute to the success of action
+      chunking. They also show that, on LIBERO, delayed policies alone can
+      match the performance of action chunking.
 <br><br>
 However, these results do not fully transfer to Robomimic (or our real-world
-setup, see next section), as delayed policies alone are not able to match the
-performance of action, as shown in the next plot (results are averaged over four
+setup, see next section), as delayed policies alone are unable to match the
+performance of action chunking, as shown in the next plot (results are averaged over four
 Robomimic tasks).
     </div>
-    <div class="media-row media-row-2">
+    <div class="media-row media-row-1 compact-media-row prelim-stills-row">
       <figure class="paper-figure">
         <img src="./static/4_section_ens/robomimic_succ_rate.png" alt="Robomimic success rate plot">
         <figcaption>Robomimic success rate.</figcaption>
@@ -467,7 +466,7 @@ Robomimic tasks).
   </div>
     <div class="content paper-section-text math-content">
       Our key insight is that action chunking works, implicitly, as an ensemble
-      of delayed policies. To see this, think to how random forests work in
+      of delayed policies. To see this, think of how random forests work in
       supervised learning: Given a training dataset
       $\mathcal{D}=\{(x_1,x_2,\dotsc,x_d,y)\}$, where $x_i$ are different
       features and $y$ is the target, one way to create an ensemble of learners
@@ -475,22 +474,22 @@ Robomimic tasks).
       say, train $d$ learners each to model a different relationship $x_i\to y$.
       Then, at inference, aggregate the predictions of all these learners.
 <br><br>
-Our insight is that, if we think to each feature $x_i$ as a different past state
+Our insight is that, if we think of each feature $x_i$ as a different past state
 $s_{t-i}$, and we realize that predictions from different learners can be
-aggregated through time by playing them at difference timesteps, then also
-action chunking works in this way.
+aggregated through time by playing them at different timesteps, then also
+action chunking works in the same way.
 <br><br>
-To test this, we first tested that an ensemble of different past states achieves
-indeed lower generalization error. As you can see from the figure below,
+To test this, we first tested whether an ensemble of different past states achieves
+indeed lower generalization error. As shown in the figure below,
 AC$(n)$-TE, which aggregates predictions from different delayed policies simply
 by computing the average, achieves lower validation error than a Markovian
 learner and any delayed policy considered, supporting our thesis. Moreover, this
-picture also shows that also an explicit ensemble of delayed policies achieves
+figure also shows that an explicit ensemble of delayed policies achieves
 lower validation error in Robomimic.
     </div>
 
     </div>
-    <div class="media-row media-row-2">
+    <div class="media-row media-row-1 compact-media-row prelim-stills-row">
       <figure class="paper-figure">
         <img src="./static/4_section_ens/robomimic_val_loss.png" alt="Robomimic validation loss plot">
         <figcaption>Robomimic validation loss.</figcaption>
@@ -499,12 +498,12 @@ lower validation error in Robomimic.
   </div>
   
       <div class="content paper-section-text math-content">
-To further validate this implicit ensembles hypothesis, we also compared the
+To further validate the implicit ensembles hypothesis, we also compared the
 success rate of AC$(n)$-TE with that of action chunking and that of the policy
-which, at each timestep, selects at random which delayed policy to use (so to
-replicate the implicit ensemble through time of action chunking with a different
-order with which playing delayed policies). As you can see from the table below,
-the performance of these methods match, supporting our claims.
+which randomly selects which delayed policy to use at each timestep, thereby
+replicating the implicit ensemble through time with a different order from
+action chunking. As shown in the table below,
+the performance of these methods matches, supporting our claims.
     </div>
 
     <div class="results-table-wrap math-content">
@@ -523,7 +522,7 @@ the performance of these methods match, supporting our claims.
         </thead>
         <tbody>
           <tr>
-            <th>Libero-90</th>
+            <th>LIBERO-90</th>
             <td>68.9 <span class="pm">\(\pm 0.6\)</span></td>
             <td>89.2 <span class="pm">\(\pm 0.2\)</span></td>
             <td>94.0 <span class="pm">\(\pm 0.1\)</span></td>
@@ -577,9 +576,9 @@ the performance of these methods match, supporting our claims.
     </div>
 
           <div class="content paper-section-text math-content">
-Lastly, we also tried to build a true ensemble of delayed/chunked policies by training
+Finally, we also built a true ensemble of delayed/chunked policies by training
 multiple policies on the same data with different seeds, and then aggregating
-them at inference time. As you can see from the table above, these ensembles
+their predictions at inference time. As shown in the table above, these ensembles
 outperform the corresponding methods.
     </div>
 
@@ -598,15 +597,12 @@ outperform the corresponding methods.
     </div>
     <div class="content paper-section-text math-content">
       We conducted real-world experiments on a Franka Emika robot arm with the
-      DROID setup to further support our claims. 
+      DROID setup to further support our claims. Specifically, we considered
+      three tasks with 50 demonstrations each. One sample demonstration per task
+      is provided below.
     </div>
 
-    <figure class="paper-figure paper-figure-wide real-results-plot">
-      <img src="./static/5_section_real/real_world_res_plot.png" alt="Real world result summary plot">
-      <figcaption>Real-world task performance.</figcaption>
-    </figure>
-
-    <div class="demo-video-row">
+        <div class="demo-video-row">
       <figure class="paper-video-block small-video">
         <video controls autoplay muted loop playsinline preload="metadata"><source src="./static/5_section_real/demo_bread_toaster.mp4" type="video/mp4"></video>
         <figcaption>Bread to toaster.</figcaption>
@@ -621,12 +617,35 @@ outperform the corresponding methods.
       </figure>
     </div>
 
+        <div class="content paper-section-text math-content">
+      We ran 50 rollouts per method per task. The following plot shows that
+      delayed policies outperform the Markovian learner but do not match action
+      chunking, while our implicit ensemble technique closes the gap. Here,
+      "Rev" denotes an implicit ensemble of delayed policies played in the
+      reverse action-chunking order.
+    </div>
+
+    <figure class="paper-figure paper-figure-wide real-results-plot">
+      <img src="./static/5_section_real/real_world_res_plot.png" alt="Real world result summary plot">
+      <figcaption>Real-world task performance.</figcaption>
+    </figure>
+
     <div class="droid-results-grid">
-      <h3 class="title is-4">DROID Rollouts</h3>
-      <!-- Each task shows 4 techniques, with 5 rollout videos per technique. -->
-      <div class="droid-task-block" data-task="bread_toaster"><h4>Bread to toaster</h4><div class="droid-method-grid"></div></div>
-      <div class="droid-task-block" data-task="carrot_in_bowl"><h4>Carrot in bowl</h4><div class="droid-method-grid"></div></div>
-      <div class="droid-task-block" data-task="sushi_in_cup"><h4>Sushi in cup</h4><div class="droid-method-grid"></div></div>
+      <p class="sim-carousel-cap">Several rollouts per method and task. Use the arrows to switch tasks; each method cycles through its five recorded rollouts.</p>
+      <div class="sim-carousel droid-carousel">
+        <div class="sim-carousel-stage">
+          <button type="button" class="sim-carousel-arrow sim-carousel-prev" id="droid-prev" aria-label="Previous task">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="sim-carousel-viewport">
+            <div class="sim-carousel-track" id="droid-carousel-track"></div>
+          </div>
+          <button type="button" class="sim-carousel-arrow sim-carousel-next" id="droid-next" aria-label="Next task">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <div id="droid-rollout-counter" class="sim-carousel-dots"></div>
+      </div>
     </div>
   </div>
 </section>

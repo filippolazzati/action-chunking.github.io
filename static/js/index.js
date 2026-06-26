@@ -482,44 +482,152 @@ function initAbstractMath() {
 }
 
 function initDroidResultsGrid() {
+  var $track = $("#droid-carousel-track");
+  var $counter = $("#droid-rollout-counter");
+  var $prev = $("#droid-prev");
+  var $next = $("#droid-next");
+
+  if (!$track.length || !$counter.length || !$prev.length || !$next.length) {
+    return;
+  }
+
+  var tasks = [
+    { key: "bread_toaster", label: "Bread to toaster" },
+    { key: "carrot_in_bowl", label: "Carrot in bowl" },
+    { key: "sushi_in_cup", label: "Sushi in cup" }
+  ];
   var methods = [
     { key: "AC1", label: "AC1" },
     { key: "AC10", label: "AC10" },
     { key: "AC10_rand", label: "AC10 Rand" },
     { key: "D6", label: "D6" }
   ];
+  var rolloutCount = 5;
+  var activeTask = 0;
 
-  $(".droid-task-block").each(function() {
-    var task = this.getAttribute("data-task");
-    var grid = this.querySelector(".droid-method-grid");
-    if (!task || !grid || grid.children.length) {
+  function videoPath(taskKey, methodKey, rolloutIndex) {
+    return "./static/5_section_real/" + taskKey + "/" + methodKey + "/video_" + rolloutIndex + ".mp4";
+  }
+
+  function setMethodRollout(methodEl, rolloutIndex, autoplay) {
+    var video = methodEl.querySelector("video");
+    if (!video) {
       return;
     }
-
-    methods.forEach(function(method) {
-      var methodEl = document.createElement("div");
-      methodEl.className = "droid-method";
-
-      var heading = document.createElement("h5");
-      heading.textContent = method.label;
-      methodEl.appendChild(heading);
-
-      var strip = document.createElement("div");
-      strip.className = "droid-video-strip";
-
-      for (var i = 0; i < 5; i++) {
-        var video = document.createElement("video");
-        video.controls = true;
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.preload = "metadata";
-        video.src = "./static/5_section_real/" + task + "/" + method.key + "/video_" + i + ".mp4";
-        strip.appendChild(video);
-      }
-
-      methodEl.appendChild(strip);
-      grid.appendChild(methodEl);
+    methodEl.setAttribute("data-rollout", rolloutIndex);
+    video.src = videoPath(methodEl.getAttribute("data-task"), methodEl.getAttribute("data-method"), rolloutIndex);
+    Array.prototype.forEach.call(methodEl.querySelectorAll(".droid-rollout-dot"), function(dot, i) {
+      dot.classList.toggle("is-active", i === rolloutIndex);
     });
+    if (autoplay) {
+      video.muted = true;
+      var p = video.play();
+      if (p && p.catch) { p.catch(function() {}); }
+    }
+  }
+
+  function buildMethod(task, method) {
+    var methodEl = document.createElement("div");
+    methodEl.className = "droid-method";
+    methodEl.setAttribute("data-task", task.key);
+    methodEl.setAttribute("data-method", method.key);
+
+    var heading = document.createElement("h5");
+    heading.textContent = method.label;
+    methodEl.appendChild(heading);
+
+    var video = document.createElement("video");
+    video.controls = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+    video.addEventListener("ended", function() {
+      var current = parseInt(methodEl.getAttribute("data-rollout"), 10) || 0;
+      setMethodRollout(methodEl, (current + 1) % rolloutCount, $(methodEl).closest(".sim-carousel-card").hasClass("is-active"));
+    });
+    methodEl.appendChild(video);
+
+    var dots = document.createElement("div");
+    dots.className = "droid-rollout-dots";
+    for (var i = 0; i < rolloutCount; i++) {
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "droid-rollout-dot";
+      dot.setAttribute("aria-label", "Show rollout " + (i + 1) + " for " + method.label);
+      (function(idx) {
+        dot.addEventListener("click", function() {
+          setMethodRollout(methodEl, idx, true);
+        });
+      })(i);
+      dots.appendChild(dot);
+    }
+    methodEl.appendChild(dots);
+    setMethodRollout(methodEl, 0, false);
+    return methodEl;
+  }
+
+  tasks.forEach(function(task) {
+    var card = document.createElement("div");
+    card.className = "sim-carousel-card droid-task-card";
+    var title = document.createElement("h4");
+    title.textContent = task.label;
+    card.appendChild(title);
+
+    var grid = document.createElement("div");
+    grid.className = "droid-method-grid";
+    methods.forEach(function(method) {
+      grid.appendChild(buildMethod(task, method));
+    });
+    card.appendChild(grid);
+    $track.append(card);
   });
+
+  var $cards = $track.find(".sim-carousel-card");
+  var $dots = [];
+  $counter.empty();
+  tasks.forEach(function(task, i) {
+    var dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "sim-dot";
+    dot.setAttribute("aria-label", "Go to " + task.label);
+    dot.addEventListener("click", function() { goTo(i); });
+    $counter.append(dot);
+    $dots.push($(dot));
+  });
+
+  function playActiveCard() {
+    $cards.each(function(i) {
+      var active = i === activeTask;
+      $(this).find("video").each(function() {
+        if (active) {
+          this.muted = true;
+          var p = this.play();
+          if (p && p.catch) { p.catch(function() {}); }
+        } else {
+          this.pause();
+        }
+      });
+    });
+  }
+
+  function position() {
+    var card = $cards[activeTask];
+    var offset = card ? -card.offsetLeft : 0;
+    $track[0].style.transform = "translateX(" + offset + "px)";
+    $cards.removeClass("is-active").eq(activeTask).addClass("is-active");
+    $dots.forEach(function($dot, i) { $dot.toggleClass("is-active", i === activeTask); });
+    playActiveCard();
+  }
+
+  function goTo(index) {
+    activeTask = (index + tasks.length) % tasks.length;
+    position();
+  }
+
+  $prev.on("click", function() { goTo(activeTask - 1); });
+  $next.on("click", function() { goTo(activeTask + 1); });
+
+    $(window).on("resize", position);
+
+  position();
 }
