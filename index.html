@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Why Does Action Chunking Improve Behavioral Cloning Performance in Robotic Control?">
+  <meta name="keywords" content="action chunking, behavioral cloning, robotics, imitation learning, implicit ensembling">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Does Action Chunking Improve Behavioral Cloning Performance in Robotic Control?</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav id="toc-nav" aria-label="Section navigation">
+  <a class="toc-item" href="#preliminaries"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Preliminaries</span></a>
+  <a class="toc-item" href="#expressivity"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Expressivity</span></a>
+  <a class="toc-item" href="#compounding-errors"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Compounding Errors</span></a>
+  <a class="toc-item" href="#representation-learning"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Representation Learning</span></a>
+  <a class="toc-item" href="#implicit-ensembles"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Implicit Ensembles</span></a>
+  <a class="toc-item" href="#real-world-results"><span class="toc-dot-wrap"><span class="toc-dot"></span></span><span class="toc-label">Real World</span></a>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+
+          <h1 class="title is-1 publication-title">Why Does Action Chunking
+          Improve Behavioral Cloning Performance in Robotic Control?</h1>
+          <!-- <h1 class="title is-1 publication-title"></h1> -->
+          
+          <div class="is-size-3 publication-authors">
+            <span class="author-block"><a
+            href="https://filippolazzati.github.io/" target="_blank" rel="noopener">Filippo Lazzati</a><sup>1</sup>,</span>
+            <span class="author-block"><a
+            href="https://www.linkedin.com/in/kylestach" target="_blank"
+            rel="noopener">Kyle Stachowicz</a><sup>2</sup>,</span>
+            <span class="author-block"><a href="https://verityw.github.io/" target="_blank" rel="noopener">William Chen</a><sup>2</sup>,</span>
+            <span class="author-block"><a
+            href="https://albertometelli.github.io/" target="_blank"
+            rel="noopener">Alberto Maria Metelli</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="https://wagenmaker.github.io/" target="_blank" rel="noopener">Andrew Wagenmaker</a><sup>2</sup>,</span>
+            <span class="author-block"><a href="https://people.eecs.berkeley.edu/~svlevine/" target="_blank" rel="noopener">Sergey Levine</a><sup>2</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Politecnico di Milano,</span>
+            <span class="author-block"><sup>2</sup>UC Berkeley</span>
+            <!-- <span class="author-block"><sup>*</sup>Equal contribution</span> -->
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="./static/action_chunking.pdf" target="_blank" rel="noopener" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a class="external-link button is-normal is-rounded is-dark is-disabled-coming-soon">
+                  <span class="icon"><i class="ai ai-arxiv"></i></span>
+                  <span>arXiv (Coming soon)</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <span class="external-link button is-normal is-rounded is-dark is-disabled-coming-soon">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code (Coming soon)</span>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section overview-video-section" id="overview-video">
+  <div class="container is-max-desktop">
+    <div class="video-toggle-wrapper">
+      <div class="video-wrapper">
+        <div id="presentation-player" class="presentation-player" data-slide-count="17" data-frame-ms="2200">
+          <a class="presentation-pdf-link" href="./static/presentation.pdf" target="_blank" rel="noopener">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span>
+            <span>Open PDF</span>
+          </a>
+          <img id="presentation-slide"
+               class="presentation-slide"
+               src="./static/images/presentation/slide-01.png"
+               alt="Presentation slide 1 of 17">
+          <div class="presentation-controls" aria-label="Presentation controls">
+            <button type="button" class="presentation-control" id="presentation-prev" aria-label="Previous slide">
+              <span class="icon"><i class="fas fa-step-backward"></i></span>
+            </button>
+            <button type="button" class="presentation-control" id="presentation-play" aria-label="Pause presentation" aria-pressed="true">
+              <span class="icon"><i class="fas fa-pause"></i></span>
+            </button>
+            <button type="button" class="presentation-control" id="presentation-next" aria-label="Next slide">
+              <span class="icon"><i class="fas fa-step-forward"></i></span>
+            </button>
+            <span class="presentation-counter" id="presentation-counter">1 / 17</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified" id="abstract-content">
+          <p>
+             Action chunking&mdash;predicting and executing multiple future actions
+             instead of a single action&mdash;has proven to be a critical component
+             for learning effective robotic control policies. However, our
+             precise understanding of <em>why</em> action chunking improves
+             performance has remained limited. In this work we seek to close
+             this gap. Through rigorous experimental evaluations, we first show
+             that, while existing hypotheses for the success of action
+             chunking&mdash;in particular non-Markovian expressivity, horizon
+             reduction, and representation learning&mdash;can each partially explain
+             the success of action chunking, in many settings of interest
+             <em>delayed</em> policies, which at each step predict a single action
+             based on the state \(k\) steps in the past, can match or exceed the
+             performance of action chunking, fully accounting for the benefits
+             of these hypotheses. We then show that there exists an additional
+             benefit of action chunking not accounted for previously that we
+             refer to as <em>implicit ensembling</em>. In particular, by learning
+             a diversity of temporal relationships (that is, \(a_t \mid o_t\), \(a_t \mid
+             o_{t-1}\), \(\ldots\)), action-chunked policies exhibit behavior
+             matching that of a model ensemble, increasing their robustness and
+             generalization ability over policies that only learn a
+             <em>single</em> temporal relationship. Motivated by these findings,
+             we propose a policy class that amplifies this effect of action
+             chunking by explicitly instantiating an ensemble, and which we show
+             significantly improves over the performance of action chunking in
+             many domains.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section paper-section" id="preliminaries">
+  <div class="container is-max-widescreen">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 1</p>
+      <h2 class="title is-3">Preliminaries</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add preliminaries text here. -->
+    </div>
+
+    <div class="media-row media-row-3">
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/libero_succ_rate.png" alt="LIBERO success rate plot">
+        <figcaption>Success rate.</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/libero_val_loss.png" alt="LIBERO validation loss plot">
+        <figcaption>Validation loss.</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/libero_succ_vs_val.png" alt="LIBERO success versus validation loss plot">
+        <figcaption>Success versus validation loss.</figcaption>
+      </figure>
+    </div>
+
+    <div class="media-row media-row-4 compact-media-row">
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/t_0.png" alt="Decision boundary at t equals 0">
+        <figcaption>\(t=0\)</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/t_80.png" alt="Decision boundary at t equals 80">
+        <figcaption>\(t=80\)</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/t_110.png" alt="Decision boundary at t equals 110">
+        <figcaption>\(t=110\)</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/1_section_express/val_loss_dec_bound.png" alt="Validation loss and decision boundary comparison">
+        <figcaption>Validation loss and boundary.</figcaption>
+      </figure>
+    </div>
+
+    <figure class="paper-video-block">
+      <video controls autoplay muted loop playsinline preload="metadata">
+        <source src="./static/1_section_express/decision_boundary.mp4" type="video/mp4">
+      </video>
+      <figcaption>Decision boundary evolution.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section paper-section is-light" id="expressivity">
+  <div class="container is-max-desktop">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 2</p>
+      <h2 class="title is-3">Hypothesis 1: Expressivity</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add expressivity text here. -->
+    </div>
+
+    <div class="theorem-panel math-content">
+      <p class="theorem-label">Theoretical result</p>
+      <h3>Lower bound for Markovian behavioral cloning</h3>
+      <p>
+        <!-- Replace this statement with the exact theorem from the paper. -->
+        If a learned Markovian policy incurs a one-step deviation of size \(\epsilon\), then recursive rollout can amplify the discrepancy along the trajectory, yielding a distance that scales as \((2^t - 1)\epsilon\) by time \(t\).
+      </p>
+    </div>
+
+    <figure class="policy-divergence-figure math-content">
+      <div class="policy-divergence-diagram" aria-label="Lower bound construction for Markovian policy performance">
+        <div class="policy-node demo s0">\(s_0^{\pi_{\mathrm{demo}}}\)</div>
+        <div class="policy-node demo s1">\(s_1^{\pi_{\mathrm{demo}}}\)</div>
+        <div class="policy-node demo s2">\(s_2^{\pi_{\mathrm{demo}}}\)</div>
+        <div class="policy-node demo st">\(s_t^{\pi_{\mathrm{demo}}}\)</div>
+        <div class="policy-node learned s1hat">\(s_1^{\hat{\pi}}\)</div>
+        <div class="policy-node learned s2hat">\(s_2^{\hat{\pi}}\)</div>
+        <div class="policy-node learned sthat">\(s_t^{\hat{\pi}}\)</div>
+        <div class="ellipsis demo-ell">\(\dotsc\)</div>
+        <div class="ellipsis learned-ell">\(\dotsc\)</div>
+        <div class="edge demo e01"><span>\(\pi_{\mathrm{demo}}(s_0^{\pi_{\mathrm{demo}}})\)</span></div>
+        <div class="edge demo e12"><span>\(\pi_{\mathrm{demo}}(s_1^{\pi_{\mathrm{demo}}})\)</span></div>
+        <div class="edge demo e2t"></div>
+        <div class="edge learned eh01"><span>\(\hat{\pi}(s_0^{\hat{\pi}})\)</span></div>
+        <div class="edge learned eh12"><span>\(\hat{\pi}(s_1^{\hat{\pi}})\)</span></div>
+        <div class="edge learned eh2t"></div>
+        <div class="gap g1"><span>\(\epsilon\)</span></div>
+        <div class="gap g2"><span>\(3\epsilon\)</span></div>
+        <div class="gap gt"><span>\((2^t - 1)\epsilon\)</span></div>
+      </div>
+      <figcaption>Construction for lower bound on performance of a Markovian policy.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section paper-section" id="compounding-errors">
+  <div class="container is-max-desktop">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 3</p>
+      <h2 class="title is-3">Hypothesis 2: Compounding Errors</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add compounding errors text here. -->
+    </div>
+    <p class="asset-note">No media files were found in <code>static/2_section_comp_errors</code> yet.</p>
+  </div>
+</section>
+
+<section class="section paper-section is-light" id="representation-learning">
+  <div class="container is-max-desktop">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 4</p>
+      <h2 class="title is-3">Hypothesis 3: Representation Learning</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add representation learning text here. -->
+    </div>
+    <figure class="paper-figure paper-figure-wide">
+      <img src="./static/3_section_repr/libero_repr_learn.png" alt="Representation learning result plot">
+      <figcaption>Representation learning results.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section paper-section" id="implicit-ensembles">
+  <div class="container is-max-desktop">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 5</p>
+      <h2 class="title is-3">Implicit Ensembles</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add implicit ensembles text here. -->
+    </div>
+    <div class="media-row media-row-2">
+      <figure class="paper-figure">
+        <img src="./static/4_section_ens/robomimic_succ_rate.png" alt="Robomimic success rate plot">
+        <figcaption>Robomimic success rate.</figcaption>
+      </figure>
+      <figure class="paper-figure">
+        <img src="./static/4_section_ens/robomimic_val_loss.png" alt="Robomimic validation loss plot">
+        <figcaption>Robomimic validation loss.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section paper-section is-light" id="real-world-results">
+  <div class="container is-max-widescreen">
+    <div class="paper-section-heading">
+      <p class="section-kicker">Section 6</p>
+      <h2 class="title is-3">Real World Results</h2>
+    </div>
+    <div class="content paper-section-text math-content">
+      <!-- Add real world results text here. -->
+    </div>
+
+    <figure class="paper-figure paper-figure-wide real-results-plot">
+      <img src="./static/5_section_real/real_world_res_plot.png" alt="Real world result summary plot">
+      <figcaption>Real-world task performance.</figcaption>
+    </figure>
+
+    <div class="demo-video-row">
+      <figure class="paper-video-block small-video">
+        <video controls autoplay muted loop playsinline preload="metadata"><source src="./static/5_section_real/demo_bread_toaster.mp4" type="video/mp4"></video>
+        <figcaption>Bread to toaster.</figcaption>
+      </figure>
+      <figure class="paper-video-block small-video">
+        <video controls autoplay muted loop playsinline preload="metadata"><source src="./static/5_section_real/demo_carrot_in_bowl.mp4" type="video/mp4"></video>
+        <figcaption>Carrot in bowl.</figcaption>
+      </figure>
+      <figure class="paper-video-block small-video">
+        <video controls autoplay muted loop playsinline preload="metadata"><source src="./static/5_section_real/demo_sushi_in_cup.mp4" type="video/mp4"></video>
+        <figcaption>Sushi in cup.</figcaption>
+      </figure>
+    </div>
+
+    <div class="droid-results-grid">
+      <h3 class="title is-4">DROID Rollouts</h3>
+      <!-- Each task shows 4 techniques, with 5 rollout videos per technique. -->
+      <div class="droid-task-block" data-task="bread_toaster"><h4>Bread to toaster</h4><div class="droid-method-grid"></div></div>
+      <div class="droid-task-block" data-task="carrot_in_bowl"><h4>Carrot in bowl</h4><div class="droid-method-grid"></div></div>
+      <div class="droid-task-block" data-task="sushi_in_cup"><h4>Sushi in cup</h4><div class="droid-method-grid"></div></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{lazzati2026chunking,
+  author  = {Filippo Lazzati and Kyle Stachowicz and William Chen and Alberto Maria Metelli and Andrew Wagenmaker and Sergey Levine},
+  title   = {Why Does Action Chunking Improve Behavioral Cloning Performance in Robotic Control?},
+  year    = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            Website borrowed from <a href="https://nerfies.github.io">NeRFies</a> under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International</a> License.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
