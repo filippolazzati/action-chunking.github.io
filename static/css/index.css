@@ -848,7 +848,7 @@ body {
 .gt { left: 26%; top: 12%; width: 310px; }
 
 .droid-results-grid {
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 2rem auto 0;
 }
 
@@ -877,52 +877,40 @@ body {
 
 .droid-method-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.95rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .droid-method {
   min-width: 0;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.07);
 }
 
 .droid-method h5 {
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.6rem;
   color: #303643;
   font-family: 'Roboto Mono', monospace;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  text-align: center;
+  text-align: left;
 }
 
-.droid-method video {
+.droid-video-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.droid-video-strip video {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #111;
-  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
-}
-
-.droid-rollout-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.3rem;
-  margin-top: 0.55rem;
-}
-
-.droid-rollout-dot {
-  width: 0.48rem;
-  height: 0.48rem;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: #c8ccd4;
-  cursor: pointer;
-}
-
-.droid-rollout-dot.is-active {
-  background: #2f6fae;
 }
 @media screen and (max-width: 900px) {
   .media-row-3,
@@ -1394,3 +1382,10 @@ h2[id], h3[id] { scroll-margin-top: 1.5rem; }
 }
 
 @media (max-width: 768px) { .rl-vidrow { grid-template-columns: repeat(2, 1fr); } }
+
+@media screen and (max-width: 900px) {
+  .droid-video-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+

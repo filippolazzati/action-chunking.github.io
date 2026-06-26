@@ -509,66 +509,36 @@ function initDroidResultsGrid() {
     return "./static/5_section_real/" + taskKey + "/" + methodKey + "/video_" + rolloutIndex + ".mp4";
   }
 
-  function setMethodRollout(methodEl, rolloutIndex, autoplay) {
-    var video = methodEl.querySelector("video");
-    if (!video) {
-      return;
-    }
-    methodEl.setAttribute("data-rollout", rolloutIndex);
-    video.src = videoPath(methodEl.getAttribute("data-task"), methodEl.getAttribute("data-method"), rolloutIndex);
-    Array.prototype.forEach.call(methodEl.querySelectorAll(".droid-rollout-dot"), function(dot, i) {
-      dot.classList.toggle("is-active", i === rolloutIndex);
-    });
-    if (autoplay) {
-      video.muted = true;
-      var p = video.play();
-      if (p && p.catch) { p.catch(function() {}); }
-    }
-  }
-
   function buildMethod(task, method) {
     var methodEl = document.createElement("div");
     methodEl.className = "droid-method";
-    methodEl.setAttribute("data-task", task.key);
-    methodEl.setAttribute("data-method", method.key);
 
     var heading = document.createElement("h5");
     heading.textContent = method.label;
     methodEl.appendChild(heading);
 
-    var video = document.createElement("video");
-    video.controls = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.preload = "metadata";
-    video.addEventListener("ended", function() {
-      var current = parseInt(methodEl.getAttribute("data-rollout"), 10) || 0;
-      setMethodRollout(methodEl, (current + 1) % rolloutCount, $(methodEl).closest(".sim-carousel-card").hasClass("is-active"));
-    });
-    methodEl.appendChild(video);
+    var strip = document.createElement("div");
+    strip.className = "droid-video-strip";
 
-    var dots = document.createElement("div");
-    dots.className = "droid-rollout-dots";
     for (var i = 0; i < rolloutCount; i++) {
-      var dot = document.createElement("button");
-      dot.type = "button";
-      dot.className = "droid-rollout-dot";
-      dot.setAttribute("aria-label", "Show rollout " + (i + 1) + " for " + method.label);
-      (function(idx) {
-        dot.addEventListener("click", function() {
-          setMethodRollout(methodEl, idx, true);
-        });
-      })(i);
-      dots.appendChild(dot);
+      var video = document.createElement("video");
+      video.controls = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = "metadata";
+      video.src = videoPath(task.key, method.key, i);
+      strip.appendChild(video);
     }
-    methodEl.appendChild(dots);
-    setMethodRollout(methodEl, 0, false);
+
+    methodEl.appendChild(strip);
     return methodEl;
   }
 
   tasks.forEach(function(task) {
     var card = document.createElement("div");
     card.className = "sim-carousel-card droid-task-card";
+
     var title = document.createElement("h4");
     title.textContent = task.label;
     card.appendChild(title);
@@ -595,28 +565,18 @@ function initDroidResultsGrid() {
     $dots.push($(dot));
   });
 
-  function playActiveCard() {
-    $cards.each(function(i) {
-      var active = i === activeTask;
-      $(this).find("video").each(function() {
-        if (active) {
-          this.muted = true;
-          var p = this.play();
-          if (p && p.catch) { p.catch(function() {}); }
-        } else {
-          this.pause();
-        }
-      });
-    });
-  }
-
   function position() {
     var card = $cards[activeTask];
     var offset = card ? -card.offsetLeft : 0;
     $track[0].style.transform = "translateX(" + offset + "px)";
     $cards.removeClass("is-active").eq(activeTask).addClass("is-active");
     $dots.forEach(function($dot, i) { $dot.toggleClass("is-active", i === activeTask); });
-    playActiveCard();
+
+    $cards.each(function(i) {
+      if (i !== activeTask) {
+        $(this).find("video").each(function() { this.pause(); });
+      }
+    });
   }
 
   function goTo(index) {
@@ -626,8 +586,7 @@ function initDroidResultsGrid() {
 
   $prev.on("click", function() { goTo(activeTask - 1); });
   $next.on("click", function() { goTo(activeTask + 1); });
-
-    $(window).on("resize", position);
+  $(window).on("resize", position);
 
   position();
 }
