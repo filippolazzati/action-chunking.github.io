@@ -525,6 +525,14 @@ body {
   gap: 0.75rem;
 }
 
+.prelim-stills-row {
+  --prelim-stills-width: 70%;
+  max-width: var(--prelim-stills-width);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2.5rem;
+}
+
 .paper-figure,
 .paper-video-block {
   margin: 0;
@@ -602,8 +610,26 @@ body {
   box-shadow: 0 10px 24px rgba(46, 30, 66, 0.08);
 }
 
+.takeaway-panel {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid #cfe0f3;
+  border-left: 5px solid #2f6fae;
+  border-radius: 8px;
+  background: #f6f9fd;
+  box-shadow: 0 10px 24px rgba(24, 75, 125, 0.08);
+}
+
 .theorem-panel h3 {
   margin: 0 0 0.65rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.takeaway-panel h3 {
+  margin: 0 0 0.65rem;
+  color: #183f68;
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -615,6 +641,70 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.takeaway-label {
+  margin-bottom: 0.35rem;
+  color: #2f6fae;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.takeaway-panel ul {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.results-table-wrap {
+  max-width: 1180px;
+  margin: 1.25rem auto 2rem;
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, 0.06);
+}
+
+.results-table th,
+.results-table td {
+  padding: 0.7rem 0.65rem;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+.results-table thead th {
+  border-top: 2px solid #20242c;
+  border-bottom: 1.5px solid #20242c;
+  color: #20242c;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.results-table tbody tr:last-child th,
+.results-table tbody tr:last-child td {
+  border-bottom: 2px solid #20242c;
+}
+
+.results-table th:first-child {
+  border-right: 2px solid #20242c;
+  font-family: 'Roboto Mono', monospace;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.results-table .pm {
+  display: inline-block;
+  color: #5f6673;
+  font-size: 0.76rem;
+  white-space: nowrap;
 }
 
 .policy-divergence-figure {
@@ -805,6 +895,10 @@ body {
 
   .media-row-2 {
     grid-template-columns: 1fr;
+  }
+
+  .prelim-stills-row {
+    max-width: 100%;
   }
 
   .policy-divergence-diagram {
